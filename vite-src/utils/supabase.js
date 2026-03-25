@@ -99,6 +99,7 @@ export async function supabasePull() {
     if (!c.vials) c.vials = [];
     if (c.targetCount) c.targetCount = parseInt(c.targetCount) || 0;
     if (c.virginsCollected) c.virginsCollected = parseInt(c.virginsCollected) || 0;
+    if (typeof c.vcs === 'string') try { c.vcs = JSON.parse(c.vcs); } catch { c.vcs = null; }
     return c;
   });
   const pins = (pinsRes.data || []).map(row => ({ user: row.user_name, hash: row.hash }));
