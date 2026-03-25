@@ -4,6 +4,7 @@ import { Inp } from '../components/ui';
 function ExpScreen({ stocks, crosses, expBank, setExpBank, toast, printListExps, setPrintListExps, deleteExpEntry }) {
   const [search, setSearch] = useState('');
   const [logMode, setLogMode] = useState('cross');
+  const [editingExp, setEditingExp] = useState(null);
 
   const totalM = Object.values(expBank).reduce((s, e) => s + (e.m || 0), 0);
   const totalF = Object.values(expBank).reduce((s, e) => s + (e.f || 0), 0);
@@ -54,7 +55,48 @@ function ExpScreen({ stocks, crosses, expBank, setExpBank, toast, printListExps,
               <div key={e.id} className="flex items-center gap-2 p-3 rounded-xl" style={{ background: 'rgba(94,234,212,0.06)', border: '1px solid rgba(94,234,212,0.1)' }}>
                 <div className="text-center">
                   <span className="text-lg font-bold" style={{ color: '#5eead4' }}>{(e.m || 0) + (e.f || 0)}</span>
-                  <p className="text-[9px]" style={{ color: 'var(--text-3)' }}>{e.m || 0}♂ {e.f || 0}♀</p>
+                  <p className="text-[9px]" style={{ color: 'var(--text-3)' }}>
+                    {editingExp?.id === e.id && editingExp?.sex === 'm' ? (
+                      <input type="number" className="w-8 bg-transparent text-center text-[9px] outline-none font-bold"
+                        style={{ color: '#93c5fd', border: '1px solid rgba(147,197,253,0.3)', borderRadius: '4px' }}
+                        defaultValue={e.m || 0} autoFocus min="0"
+                        onFocus={ev => ev.target.select()}
+                        onBlur={ev => {
+                          const val = Math.max(0, parseInt(ev.target.value) || 0);
+                          setExpBank(prev => {
+                            const cur = prev[e.id] || { m: 0, f: 0, source: e.source };
+                            const next = { ...prev, [e.id]: { ...cur, m: val } };
+                            if (val === 0 && (cur.f || 0) === 0) delete next[e.id];
+                            return next;
+                          });
+                          setEditingExp(null);
+                        }}
+                        onKeyDown={ev => { if (ev.key === 'Enter') ev.target.blur(); if (ev.key === 'Escape') setEditingExp(null); }}
+                      />
+                    ) : (
+                      <span onClick={() => setEditingExp({ id: e.id, sex: 'm' })} style={{ cursor: 'pointer' }}>{e.m || 0}</span>
+                    )}♂{' '}
+                    {editingExp?.id === e.id && editingExp?.sex === 'f' ? (
+                      <input type="number" className="w-8 bg-transparent text-center text-[9px] outline-none font-bold"
+                        style={{ color: '#f9a8d4', border: '1px solid rgba(249,168,212,0.3)', borderRadius: '4px' }}
+                        defaultValue={e.f || 0} autoFocus min="0"
+                        onFocus={ev => ev.target.select()}
+                        onBlur={ev => {
+                          const val = Math.max(0, parseInt(ev.target.value) || 0);
+                          setExpBank(prev => {
+                            const cur = prev[e.id] || { m: 0, f: 0, source: e.source };
+                            const next = { ...prev, [e.id]: { ...cur, f: val } };
+                            if (val === 0 && (cur.m || 0) === 0) delete next[e.id];
+                            return next;
+                          });
+                          setEditingExp(null);
+                        }}
+                        onKeyDown={ev => { if (ev.key === 'Enter') ev.target.blur(); if (ev.key === 'Escape') setEditingExp(null); }}
+                      />
+                    ) : (
+                      <span onClick={() => setEditingExp({ id: e.id, sex: 'f' })} style={{ cursor: 'pointer' }}>{e.f || 0}</span>
+                    )}♀
+                  </p>
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-semibold truncate" style={{ color: 'var(--text-1)' }}>{e.name}</p>
