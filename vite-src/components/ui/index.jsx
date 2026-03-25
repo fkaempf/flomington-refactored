@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import ReactDOM from 'react-dom';
 import { uid } from '../../utils/helpers.js';
 import { TAG_STYLE } from '../../utils/constants.js';
 
@@ -34,16 +35,28 @@ export function useToast() {
 
 /* ========== MODAL ========== */
 export function Modal({ open, onClose, title, children, wide }) {
-  if (!open) return null;
-
   useEffect(() => {
+    if (!open) return;
     const handleEsc = (e) => { if (e.key === 'Escape') onClose(); };
     document.addEventListener('keydown', handleEsc);
     return () => document.removeEventListener('keydown', handleEsc);
-  }, [onClose]);
+  }, [open, onClose]);
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-5" onClick={onClose}>
+  useEffect(() => {
+    if (!open) return;
+    const main = document.querySelector('main');
+    if (!main) return;
+    const prevMain = main.style.overflow;
+    const prevBody = document.body.style.overflow;
+    main.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+    return () => { main.style.overflow = prevMain; document.body.style.overflow = prevBody; };
+  }, [open]);
+
+  if (!open) return null;
+
+  return ReactDOM.createPortal(
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-5" onClick={onClose} onWheel={e => e.stopPropagation()}>
       <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', animation: 'backdrop-in 0.2s ease' }} />
       <div className={`relative w-full ${wide ? 'max-w-2xl' : 'max-w-lg'} max-h-[75vh] overflow-y-auto`}
         style={{
@@ -68,7 +81,8 @@ export function Modal({ open, onClose, title, children, wide }) {
         )}
         <div>{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
