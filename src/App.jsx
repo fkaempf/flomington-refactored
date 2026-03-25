@@ -153,7 +153,10 @@ const IconSettings = (active) => (
 
 function App() {
   const [currentUser, setCurrentUser] = useLS('flo-user', 'Flo');
-  const [locked, setLocked] = useState(true);
+  const [locked, setLocked] = useState(() => {
+    const ts = localStorage.getItem('flo-unlock-ts');
+    return !ts || Date.now() - Number(ts) > 24 * 60 * 60 * 1000;
+  });
   const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
   useEffect(() => {
     const on = () => setIsOnline(true);
@@ -569,7 +572,7 @@ function App() {
     toast.add(`Transfer request sent to ${t.to}`);
   }
 
-  if (locked) return <PinLock user={currentUser} onSelectUser={setCurrentUser} onUnlock={() => setLocked(false)} onPinSet={() => setPinVersion(v => v + 1)} />;
+  if (locked) return <PinLock user={currentUser} onSelectUser={setCurrentUser} onUnlock={() => { localStorage.setItem('flo-unlock-ts', String(Date.now())); setLocked(false); }} onPinSet={() => setPinVersion(v => v + 1)} />;
   if (pendingUser) return <PinLock user={pendingUser} onSelectUser={u => setPendingUser(u)} onUnlock={() => { setCurrentUser(pendingUser); setPendingUser(null); }} onPinSet={() => setPinVersion(v => v + 1)} />;
 
   return (
