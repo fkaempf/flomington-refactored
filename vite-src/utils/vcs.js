@@ -91,6 +91,8 @@ export function computeNextActions(vcs, now) {
 
   // Auto-advance: if the first action is >2h overdue and there's a later action, skip it
   while (result.length > 1 && result[0].timeUntilMs < -2 * 3600000) {
+    const isClear = ['clear', 'clear_discard', 'collect_clear'].includes(result[0].type);
+    if (isClear && !result.slice(1).some(a => ['clear', 'clear_discard', 'collect_clear'].includes(a.type))) break;
     result[0].skipped = true;
     result.shift();
   }
