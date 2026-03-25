@@ -4,7 +4,7 @@ import { parseHHMM } from './dates.js';
 
 export function vcsKey(o18, n) { return (o18 ? '18' : '25') + '_' + n; }
 
-export function getVirginWindowH() { return 8; }
+export function getVirginWindowH(at18) { return at18 ? 16 : 8; }
 
 // Compute virgin deadline from a clear timestamp
 export function computeDeadline(clearIso, o18) {
@@ -125,6 +125,6 @@ export function vcsWindowProgress(vcs, now) {
     if (nextMs > clearMs) return Math.max(0, Math.min(1, (nowMs - clearMs) / (nextMs - clearMs)));
   }
   // Fallback: track toward 8h expiry if no actions left
-  const windowMs = getVirginWindowH() * 3600000;
+  const windowMs = getVirginWindowH(vcs.overnightAt18) * 3600000;
   return Math.max(0, Math.min(1, (nowMs - clearMs) / windowMs));
 }
