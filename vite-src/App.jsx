@@ -58,6 +58,7 @@ function useSupabaseRealtime(setStocks, setCrosses, setPinVersion, setVirginBank
           const item = toCamel(payload.new, CROSS_FIELD_MAP);
           if (!item.collected) item.collected = [];
           if (!item.vials) item.vials = [];
+          if (typeof item.vcs === 'string') try { item.vcs = JSON.parse(item.vcs); } catch { item.vcs = null; }
           setCrosses(prev => {
             const idx = prev.findIndex(c => c.id === item.id);
             if (idx >= 0) { const next = [...prev]; next[idx] = { ...next[idx], ...item }; return next; }
