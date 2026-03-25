@@ -227,7 +227,14 @@ function App() {
         });
         return merged;
       });
-      if (remote.crosses) setCrosses(remote.crosses);
+      if (remote.crosses) setCrosses(prev => {
+        const localMap = new Map(prev.map(c => [c.id, c]));
+        return remote.crosses.map(rc => {
+          const local = localMap.get(rc.id);
+          if (local?.vcs && !rc.vcs) return { ...rc, vcs: local.vcs };
+          return rc;
+        });
+      });
       if (remote.pins && remote.pins.length > 0) {
         let pinSynced = false;
         remote.pins.forEach(p => {
