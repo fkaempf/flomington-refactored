@@ -406,7 +406,7 @@ function HomeScreen({ stocks, setStocks, crosses, setCrosses, toast, onNewCross,
                         {/* Action buttons - only show when next action is within 20min or overdue */}
                         {(isPastDeadline || isInGracePeriod || (next && next.timeUntilMs <= 20 * 60000)) && <div className="flex gap-1.5" onClick={e => e.stopPropagation()}>
                           {isPastDeadline ? (
-                            <button onClick={() => { if (v.overnightAt18) setCrossVcs18Confirm({ crossId: c.id, key: next?.key || 'evening', type: 'clear_discard' }); else logCrossAction(c.id, 'clear_discard', next?.key || 'evening'); }}
+                            <button onClick={() => logCrossAction(c.id, 'clear_discard', next?.key || 'evening')}
                               className="flex-1 px-3 py-2 text-[12px] font-semibold rounded-lg transition-all active:scale-95 cursor-pointer"
                               style={{ background: 'rgba(239,68,68,0.12)', color: '#fca5a5', border: '1px solid rgba(239,68,68,0.2)' }}>Clear & Discard</button>
                           ) : isInGracePeriod ? (
@@ -414,14 +414,14 @@ function HomeScreen({ stocks, setStocks, crosses, setCrosses, toast, onNewCross,
                               <button onClick={() => { logCrossAction(c.id, 'collect', next?.key || 'afternoon'); setCrossVcsBankPrompt({ crossId: c.id, crossName: cl(c, stocks) }); }}
                                 className="flex-1 px-3 py-2 text-[12px] font-semibold rounded-lg transition-all active:scale-95 cursor-pointer"
                                 style={{ background: 'rgba(234,179,8,0.12)', color: '#fbbf24', border: '1px solid rgba(234,179,8,0.2)' }}>Collect (late)</button>
-                              <button onClick={() => { if (v.overnightAt18) setCrossVcs18Confirm({ crossId: c.id, key: next?.key || 'evening', type: 'clear_discard' }); else logCrossAction(c.id, 'clear_discard', next?.key || 'evening'); }}
+                              <button onClick={() => { if (v.overnightAt18 && (next?.key || 'evening') === 'evening') setCrossVcs18Confirm({ crossId: c.id, key: next?.key || 'evening', type: 'clear_discard' }); else logCrossAction(c.id, 'clear_discard', next?.key || 'evening'); }}
                                 className="px-3 py-2 text-[12px] font-semibold rounded-lg transition-all active:scale-95 cursor-pointer"
                                 style={{ background: 'rgba(239,68,68,0.12)', color: '#fca5a5', border: '1px solid rgba(239,68,68,0.2)' }}>Discard</button>
                             </>
                           ) : next?.type === 'collect' || next?.type === 'collect_clear' ? (
                             <>
                               <button onClick={() => {
-                                if (next.type === 'collect_clear' && v.overnightAt18) {
+                                if (next.type === 'collect_clear' && v.overnightAt18 && next.key === 'evening') {
                                   setCrossVcsBankPrompt({ crossId: c.id, crossName: cl(c, stocks) });
                                   setCrossVcs18Confirm({ crossId: c.id, key: next.key, type: 'clear', withCollect: true });
                                 } else {
@@ -433,16 +433,16 @@ function HomeScreen({ stocks, setStocks, crosses, setCrosses, toast, onNewCross,
                                 style={{ background: 'rgba(94,234,212,0.12)', color: '#5eead4', border: '1px solid rgba(94,234,212,0.2)' }}>
                                 {next.type === 'collect_clear' ? 'Collect + Clear' : 'Collected'}
                               </button>
-                              <button onClick={() => { if (v.overnightAt18) setCrossVcs18Confirm({ crossId: c.id, key: next.key, type: 'clear' }); else logCrossAction(c.id, 'clear', next.key); }}
+                              <button onClick={() => { if (v.overnightAt18 && next.key === 'evening') setCrossVcs18Confirm({ crossId: c.id, key: next.key, type: 'clear' }); else logCrossAction(c.id, 'clear', next.key); }}
                                 className="px-3 py-2 text-[12px] font-semibold rounded-lg transition-all active:scale-95 cursor-pointer"
                                 style={{ background: 'var(--surface-2)', color: 'var(--text-3)', border: '1px solid var(--border)' }}>Clear</button>
                             </>
                           ) : next?.type === 'clear_discard' ? (
-                            <button onClick={() => { if (v.overnightAt18) setCrossVcs18Confirm({ crossId: c.id, key: next.key, type: 'clear_discard' }); else logCrossAction(c.id, 'clear_discard', next.key); }}
+                            <button onClick={() => { if (v.overnightAt18 && next.key === 'evening') setCrossVcs18Confirm({ crossId: c.id, key: next.key, type: 'clear_discard' }); else logCrossAction(c.id, 'clear_discard', next.key); }}
                               className="flex-1 px-3 py-2 text-[12px] font-semibold rounded-lg transition-all active:scale-95 cursor-pointer"
                               style={{ background: 'rgba(239,68,68,0.12)', color: '#fca5a5', border: '1px solid rgba(239,68,68,0.2)' }}>Clear + Discard</button>
                           ) : next?.type === 'clear' ? (
-                            <button onClick={() => { if (v.overnightAt18) setCrossVcs18Confirm({ crossId: c.id, key: next.key, type: 'clear' }); else logCrossAction(c.id, 'clear', next.key); }}
+                            <button onClick={() => { if (v.overnightAt18 && next.key === 'evening') setCrossVcs18Confirm({ crossId: c.id, key: next.key, type: 'clear' }); else logCrossAction(c.id, 'clear', next.key); }}
                               className="flex-1 px-3 py-2 text-[12px] font-semibold rounded-lg transition-all active:scale-95 cursor-pointer"
                               style={{ background: 'rgba(139,92,246,0.12)', color: '#a78bfa', border: '1px solid rgba(139,92,246,0.2)' }}>
                               Mark Cleared</button>
@@ -581,7 +581,7 @@ function HomeScreen({ stocks, setStocks, crosses, setCrosses, toast, onNewCross,
                     {/* Action buttons - only show when next action is within 20min or overdue */}
                     {(isPastDeadline || isInGracePeriod || (next && next.timeUntilMs <= 20 * 60000)) && <div className="flex gap-1.5" onClick={e => e.stopPropagation()}>
                       {isPastDeadline ? (
-                        <button onClick={() => { if (v.overnightAt18) setVcs18Confirm({ stockId: s.id, key: next?.key || 'evening', type: 'clear_discard' }); else logAction('clear_discard', next?.key || 'evening'); }}
+                        <button onClick={() => logAction('clear_discard', next?.key || 'evening')}
                           className="flex-1 px-3 py-2 text-[12px] font-semibold rounded-lg transition-all active:scale-95 cursor-pointer"
                           style={{ background: 'rgba(239,68,68,0.12)', color: '#fca5a5', border: '1px solid rgba(239,68,68,0.2)' }}>Clear & Discard</button>
                       ) : isInGracePeriod ? (
@@ -589,14 +589,14 @@ function HomeScreen({ stocks, setStocks, crosses, setCrosses, toast, onNewCross,
                           <button onClick={() => { logAction('collect', next?.key || 'afternoon'); setVcsBankPrompt({ stockId: s.id, stockName: s.name }); }}
                             className="flex-1 px-3 py-2 text-[12px] font-semibold rounded-lg transition-all active:scale-95 cursor-pointer"
                             style={{ background: 'rgba(234,179,8,0.12)', color: '#fbbf24', border: '1px solid rgba(234,179,8,0.2)' }}>Collect (late)</button>
-                          <button onClick={() => { if (v.overnightAt18) setVcs18Confirm({ stockId: s.id, key: next?.key || 'evening', type: 'clear_discard' }); else logAction('clear_discard', next?.key || 'evening'); }}
+                          <button onClick={() => { if (v.overnightAt18 && (next?.key || 'evening') === 'evening') setVcs18Confirm({ stockId: s.id, key: next?.key || 'evening', type: 'clear_discard' }); else logAction('clear_discard', next?.key || 'evening'); }}
                             className="px-3 py-2 text-[12px] font-semibold rounded-lg transition-all active:scale-95 cursor-pointer"
                             style={{ background: 'rgba(239,68,68,0.12)', color: '#fca5a5', border: '1px solid rgba(239,68,68,0.2)' }}>Discard</button>
                         </>
                       ) : next?.type === 'collect' || next?.type === 'collect_clear' ? (
                         <>
                           <button onClick={() => {
-                            if (next.type === 'collect_clear' && v.overnightAt18) {
+                            if (next.type === 'collect_clear' && v.overnightAt18 && next.key === 'evening') {
                               setVcsBankPrompt({ stockId: s.id, stockName: s.name });
                               setVcs18Confirm({ stockId: s.id, key: next.key, type: 'clear', withCollect: true });
                             } else {
@@ -608,16 +608,16 @@ function HomeScreen({ stocks, setStocks, crosses, setCrosses, toast, onNewCross,
                             style={{ background: 'rgba(94,234,212,0.12)', color: '#5eead4', border: '1px solid rgba(94,234,212,0.2)' }}>
                             {next.type === 'collect_clear' ? 'Collect + Clear' : 'Collected ✓'}
                           </button>
-                          <button onClick={() => { if (v.overnightAt18) setVcs18Confirm({ stockId: s.id, key: next.key, type: 'clear' }); else logAction('clear', next.key); }}
+                          <button onClick={() => { if (v.overnightAt18 && next.key === 'evening') setVcs18Confirm({ stockId: s.id, key: next.key, type: 'clear' }); else logAction('clear', next.key); }}
                             className="px-3 py-2 text-[12px] font-semibold rounded-lg transition-all active:scale-95 cursor-pointer"
                             style={{ background: 'var(--surface-2)', color: 'var(--text-3)', border: '1px solid var(--border)' }}>Clear</button>
                         </>
                       ) : next?.type === 'clear_discard' ? (
-                        <button onClick={() => { if (v.overnightAt18) setVcs18Confirm({ stockId: s.id, key: next.key, type: 'clear_discard' }); else logAction('clear_discard', next.key); }}
+                        <button onClick={() => { if (v.overnightAt18 && next.key === 'evening') setVcs18Confirm({ stockId: s.id, key: next.key, type: 'clear_discard' }); else logAction('clear_discard', next.key); }}
                           className="flex-1 px-3 py-2 text-[12px] font-semibold rounded-lg transition-all active:scale-95 cursor-pointer"
                           style={{ background: 'rgba(239,68,68,0.12)', color: '#fca5a5', border: '1px solid rgba(239,68,68,0.2)' }}>Clear + Discard</button>
                       ) : next?.type === 'clear' ? (
-                        <button onClick={() => { if (v.overnightAt18) setVcs18Confirm({ stockId: s.id, key: next.key, type: 'clear' }); else logAction('clear', next.key); }}
+                        <button onClick={() => { if (v.overnightAt18 && next.key === 'evening') setVcs18Confirm({ stockId: s.id, key: next.key, type: 'clear' }); else logAction('clear', next.key); }}
                           className="flex-1 px-3 py-2 text-[12px] font-semibold rounded-lg transition-all active:scale-95 cursor-pointer"
                           style={{ background: 'rgba(139,92,246,0.12)', color: '#a78bfa', border: '1px solid rgba(139,92,246,0.2)' }}>
                           Mark Cleared</button>

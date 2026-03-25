@@ -5,7 +5,7 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   root: 'vite-src',
-  base: '/flomington/',
+  base: '/flomington-refactored/',
   build: {
     outDir: '../dist',
     emptyOutDir: true,
